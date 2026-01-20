@@ -1,0 +1,231 @@
+.dashboard-page {
+    padding: 6rem 2rem 2rem;
+    min-height: 100vh;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.dashboard-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.materials-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.material-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 2fr auto;
+    gap: 1rem;
+    align-items: end;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: var(--radius-md);
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.boms-section {
+    margin-top: 3rem;
+}
+
+.boms-section h2 {
+    margin-bottom: 1.5rem;
+}
+
+.boms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.bom-card {
+    padding: 1.5rem;
+}
+
+.bom-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.bom-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.bom-date {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.bom-materials {
+    margin: 1rem 0;
+}
+
+.bom-materials h4 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+}
+
+.bom-materials ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.bom-materials li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+.bom-materials li:last-child {
+    border-bottom: none;
+}
+
+.bom-comments {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--accent-purple);
+    font-size: 0.9rem;
+}
+
+.bom-comments strong {
+    color: var(--text-primary);
+}
+
+/* Stats Mini */
+.stats-mini {
+    display: flex;
+    gap: 2rem;
+}
+
+.stat-mini {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: var(--radius-md);
+}
+
+.stat-mini .stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.stat-mini .stat-label {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+/* Inventory Table */
+.inventory-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.inventory-table thead {
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.inventory-table th,
+.inventory-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.inventory-table th {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.inventory-table td {
+    color: var(--text-secondary);
+}
+
+.inventory-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+/* Admin Sections */
+.admin-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.admin-section h2 {
+    margin-bottom: 1rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 968px) {
+    .material-row {
+        grid-template-columns: 1fr;
+    }
+
+    .boms-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .dashboard-header button {
+        width: 100%;
+    }
+
+    .stats-mini {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .stat-mini {
+        width: 100%;
+    }
+}
