@@ -1,0 +1,64 @@
+
+> backend@1.0.0 dev
+> nodemon server.js
+
+[33m[nodemon] 3.1.11[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: js,mjs,cjs,json[39m
+[32m[nodemon] starting `node server.js`[39m
+Server running in development mode on port 5000
+MongoDB Connected: ac-933nsd9-shard-00-02.qclhpec.mongodb.net
+Error in createUser: Error: User validation failed: email: Email must end with @kletech.ac.in
+    at ValidationError.inspect (D:\projectCEER\backend\node_modules\mongoose\lib\error\validation.js:52:26)
+    at formatValue (node:internal/util/inspect:829:19)
+    at inspect (node:internal/util/inspect:372:10)
+    at formatWithOptionsInternal (node:internal/util/inspect:2325:40)
+    at formatWithOptions (node:internal/util/inspect:2187:10)
+    at console.value (node:internal/console/constructor:350:14)
+    at console.warn (node:internal/console/constructor:383:61)
+    at createUser (file:///D:/projectCEER/backend/controllers/user.controllers.js:84:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  errors: {
+    email: ValidatorError: Email must end with @kletech.ac.in
+        at validate (D:\projectCEER\backend\node_modules\mongoose\lib\schemaType.js:1443:13)
+        at SchemaType.doValidate (D:\projectCEER\backend\node_modules\mongoose\lib\schemaType.js:1427:7)
+        at D:\projectCEER\backend\node_modules\mongoose\lib\document.js:3126:18
+        at process.processTicksAndRejections (node:internal/process/task_queues:77:11) {
+      properties: [Object],
+      kind: 'user defined',
+      path: 'email',
+      value: 'shri@gmail.com',
+      reason: undefined,
+      [Symbol(mongoose#validatorError)]: true
+    }
+  },
+  _message: 'User validation failed'
+}
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node server.js`[39m
+node:events:502
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE: address already in use :::5000
+    at Server.setupListenHandle [as _listen2] (node:net:1908:16)
+    at listenInCluster (node:net:1965:12)
+    at Server.listen (node:net:2067:7)
+    at Function.listen (D:\projectCEER\backend\node_modules\express\lib\application.js:635:24)
+    at file:///D:/projectCEER/backend/server.js:50:5
+    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+Emitted 'error' event on Server instance at:
+    at emitErrorNT (node:net:1944:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::',
+  port: 5000
+}
+
+Node.js v20.19.4
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m

@@ -1,4 +1,5 @@
 import User from '../models/user.models.js';
+import '../models/team.models.js'; // Ensure Team model is registered for population
 
 // @desc    Get all users
 // @route   GET /api/users
@@ -17,7 +18,7 @@ export const getUsers = async (req, res) => {
             users,
         });
     } catch (error) {
-        console.error(error);
+        console.error('Error in getUsers:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
@@ -38,7 +39,7 @@ export const getUser = async (req, res) => {
             user,
         });
     } catch (error) {
-        console.error(error);
+        console.error('Error in getUser:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
@@ -80,7 +81,14 @@ export const createUser = async (req, res) => {
             },
         });
     } catch (error) {
-        console.error(error);
+        console.error('Error in createUser:', error);
+        if (error.name === 'ValidationError') {
+            const messages = Object.values(error.errors).map(val => val.message);
+            return res.status(400).json({ message: messages.join(', ') });
+        }
+        if (error.code === 11000) {
+            return res.status(400).json({ message: 'Email already exists' });
+        }
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
@@ -119,7 +127,7 @@ export const updateUser = async (req, res) => {
             },
         });
     } catch (error) {
-        console.error(error);
+        console.error('Error in updateUser:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
@@ -142,7 +150,7 @@ export const deleteUser = async (req, res) => {
             message: 'User deleted successfully',
         });
     } catch (error) {
-        console.error(error);
+        console.error('Error in deleteUser:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
@@ -170,7 +178,7 @@ export const resetPassword = async (req, res) => {
             message: `Password reset to: ${defaultPassword}`,
         });
     } catch (error) {
-        console.error(error);
+        console.error('Error in resetPassword:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };

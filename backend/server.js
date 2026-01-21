@@ -10,6 +10,9 @@ import bomRoutes from './routes/bom.routes.js';
 import userRoutes from './routes/user.routes.js';
 import teamRoutes from './routes/team.routes.js';
 import inventoryRoutes from './routes/inventory.routes.js';
+import materialRoutes from './routes/material.routes.js';
+import equipmentRoutes from './routes/equipment.routes.js';
+import adminRoutes from './routes/admin.routes.js';
 
 // Load environment variables
 dotenv.config();
@@ -34,6 +37,9 @@ app.use('/api/bom', bomRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/inventory', inventoryRoutes);
+app.use('/api/materials', materialRoutes);
+app.use('/api/equipment', equipmentRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Error handling middleware
 app.use(notFound);
