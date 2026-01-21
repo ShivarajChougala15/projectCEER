@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import './Login.css';
+import Button from '../components/Button';
 
 const Login = () => {
     const [searchParams] = useSearchParams();
@@ -61,29 +61,32 @@ const Login = () => {
     };
 
     return (
-        <div className="login-page">
-            <div className="login-container">
-                <div className="login-card glass">
-                    <div className="login-header">
-                        <h1 className="text-gradient">Welcome Back</h1>
-                        <p className="text-muted">Sign in to continue to Project CEER</p>
+        <div className="min-h-screen bg-[#fffcf5] flex items-center justify-center px-4 py-12 pt-28">
+            <div className="w-full max-w-md">
+                <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8 md:p-10">
+                    <div className="text-center mb-8">
+                        <h1 className="text-3xl md:text-4xl font-serif text-slate-900 mb-2">Welcome Back</h1>
+                        <p className="text-gray-500">Sign in to continue to CEER</p>
                     </div>
 
                     {error && (
-                        <div className="alert alert-error">
+                        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6">
                             {error}
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="login-form">
-                        <div className="input-group">
-                            <label htmlFor="role">Role</label>
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div>
+                            <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
+                                Role
+                            </label>
                             <select
                                 id="role"
                                 name="role"
                                 value={formData.role}
                                 onChange={handleChange}
                                 required
+                                className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#005d52] focus:border-transparent transition-all"
                             >
                                 <option value="">Select your role</option>
                                 <option value="student">Student</option>
@@ -93,8 +96,10 @@ const Login = () => {
                             </select>
                         </div>
 
-                        <div className="input-group">
-                            <label htmlFor="email">Email</label>
+                        <div>
+                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                                Email
+                            </label>
                             <input
                                 type="email"
                                 id="email"
@@ -103,12 +108,15 @@ const Login = () => {
                                 onChange={handleChange}
                                 placeholder="yourname@kletech.ac.in"
                                 required
+                                className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 text-slate-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#005d52] focus:border-transparent transition-all"
                             />
-                            <small className="text-muted">Must end with @kletech.ac.in</small>
+                            <p className="text-xs text-gray-500 mt-1">Must end with @kletech.ac.in</p>
                         </div>
 
-                        <div className="input-group">
-                            <label htmlFor="password">Password</label>
+                        <div>
+                            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                                Password
+                            </label>
                             <input
                                 type="password"
                                 id="password"
@@ -117,30 +125,31 @@ const Login = () => {
                                 onChange={handleChange}
                                 placeholder="Enter your password"
                                 required
+                                className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 text-slate-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#005d52] focus:border-transparent transition-all"
                             />
-                            <small className="text-muted">
+                            <p className="text-xs text-gray-500 mt-1">
                                 Default password: {formData.role ? `${formData.role}@123` : 'role@123'}
-                            </small>
+                            </p>
                         </div>
 
-                        <button
+                        <Button
                             type="submit"
-                            className="btn btn-primary"
+                            variant="primary"
                             disabled={loading}
-                            style={{ width: '100%' }}
+                            className="w-full py-4 text-lg"
                         >
                             {loading ? 'Signing in...' : 'Sign In'}
-                        </button>
+                        </Button>
                     </form>
 
-                    <div className="login-footer">
-                        <p className="text-muted">
+                    <div className="mt-8 text-center">
+                        <p className="text-gray-500 text-sm mb-4">
                             Don't have an account? Contact admin for registration.
                         </p>
-                        <Link to="/role-selection" className="text-center">
-                            <button className="btn btn-outline" style={{ width: '100%', marginTop: '1rem' }}>
+                        <Link to="/role-selection">
+                            <Button variant="secondary" className="w-full">
                                 Change Role
-                            </button>
+                            </Button>
                         </Link>
                     </div>
                 </div>
