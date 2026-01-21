@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -11,12 +11,25 @@ import FacultyDashboard from './pages/FacultyDashboard';
 import LabInchargeDashboard from './pages/LabInchargeDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 
+// Layout wrapper to conditionally show Navbar/Footer
+const Layout = ({ children }) => {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
+  return (
+    <div className="app">
+      {!isAdminRoute && <Navbar />}
+      {children}
+      {!isAdminRoute && <Footer />}
+    </div>
+  );
+};
+
 function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="app">
-          <Navbar />
+        <Layout>
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/role-selection" element={<RoleSelection />} />
@@ -60,8 +73,7 @@ function App() {
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-          <Footer />
-        </div>
+        </Layout>
       </Router>
     </AuthProvider>
   );
