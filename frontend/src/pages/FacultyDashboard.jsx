@@ -2,19 +2,50 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import './StudentDashboard.css';
+import { FaPlus, FaUsers, FaTimes } from 'react-icons/fa';
 
 const FacultyDashboard = () => {
     const { user } = useAuth();
     const [boms, setBoms] = useState([]);
+    const [availableStudents, setAvailableStudents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedBOM, setSelectedBOM] = useState(null);
     const [comments, setComments] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
+    // Team creation state
+    const [showCreateTeam, setShowCreateTeam] = useState(false);
+    const [teamData, setTeamData] = useState({
+        teamName: '',
+        problemStatement: '',
+        selectedStudents: []
+    });
+
     useEffect(() => {
-        fetchBOMs();
+        fetchData();
     }, []);
+
+    const fetchData = async () => {
+        try {
+            const [bomsRes, studentsRes] = await Promise.allSettled([
+                api.get('/bom'),
+                api.get('/users/available-students')
+            ]);
+
+            if (bomsRes.status === 'fulfilled') {
+                setBoms(bomsRes.value.data.boms);
+            }
+
+            if (studentsRes.status === 'fulfilled') {
+                setAvailableStudents(studentsRes.value.data.students);
+            }
+        } catch (err) {
+            setError('Failed to fetch data');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const fetchBOMs = async () => {
         try {
@@ -22,8 +53,6 @@ const FacultyDashboard = () => {
             setBoms(data.boms);
         } catch (err) {
             setError('Failed to fetch BOMs');
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -55,6 +84,60 @@ const FacultyDashboard = () => {
         }
     };
 
+    const handleStudentToggle = (studentId) => {
+        setTeamData(prev => ({
+            ...prev,
+            selectedStudents: prev.selectedStudents.includes(studentId)
+                ? prev.selectedStudents.filter(id => id !== studentId)
+                : [...prev.selectedStudents, studentId]
+        }));
+    };
+
+    const handleCreateTeam = async (e) => {
+        e.preventDefault();
+        setError('');
+        setSuccess('');
+
+        if (!teamData.teamName.trim()) {
+            setError('Please enter a team name');
+            return;
+        }
+
+        if (!teamData.problemStatement.trim()) {
+            setError('Please enter a problem statement');
+            return;
+        }
+
+        if (teamData.selectedStudents.length === 0) {
+            setError('Please select at least one student');
+            return;
+        }
+
+        try {
+            await api.post('/teams', {
+                teamName: teamData.teamName,
+                projectTitle: teamData.problemStatement,
+                projectDescription: '',
+                members: teamData.selectedStudents,
+                guide: user.id
+            });
+
+            setSuccess('Team created successfully!');
+            setShowCreateTeam(false);
+            setTeamData({
+                teamName: '',
+                problemStatement: '',
+                selectedStudents: []
+            });
+
+            // Refresh available students
+            const { data } = await api.get('/users/available-students');
+            setAvailableStudents(data.students);
+        } catch (err) {
+            setError(err.response?.data?.message || 'Failed to create team');
+        }
+    };
+
     const pendingBOMs = boms.filter((bom) => bom.status === 'pending');
 
     if (loading) {
@@ -78,12 +161,99 @@ const FacultyDashboard = () => {
                             <span className="stat-number">{pendingBOMs.length}</span>
                             <span className="stat-label">Pending Approvals</span>
                         </div>
+                        <div className="stat-mini">
+                            <span className="stat-number">{availableStudents.length}</span>
+                            <span className="stat-label">Available Students</span>
+                        </div>
                     </div>
                 </div>
 
                 {error && <div className="alert alert-error">{error}</div>}
                 {success && <div className="alert alert-success">{success}</div>}
 
+                {/* Team Creation Section */}
+                <div className="info-section">
+                    <div className="section-header">
+                        <h2><FaUsers /> Create Team</h2>
+                        <button
+                            className="btn btn-primary"
+                            onClick={() => setShowCreateTeam(!showCreateTeam)}
+                        >
+                            <FaPlus /> {showCreateTeam ? 'Cancel' : 'New Team'}
+                        </button>
+                    </div>
+
+                    {showCreateTeam && (
+                        <div className="card">
+                            <form onSubmit={handleCreateTeam}>
+                                <div className="input-group">
+                                    <label>Team Name *</label>
+                                    <input
+                                        type="text"
+                                        value={teamData.teamName}
+                                        onChange={(e) => setTeamData({ ...teamData, teamName: e.target.value })}
+                                        placeholder="Enter team name"
+                                        required
+                                    />
+                                </div>
+
+                                <div className="input-group">
+                                    <label>Problem Statement *</label>
+                                    <textarea
+                                        value={teamData.problemStatement}
+                                        onChange={(e) => setTeamData({ ...teamData, problemStatement: e.target.value })}
+                                        placeholder="Describe the problem statement or project idea"
+                                        rows="4"
+                                        required
+                                    />
+                                </div>
+
+                                <div className="input-group">
+                                    <label>Select Students * ({teamData.selectedStudents.length} selected)</label>
+                                    {availableStudents.length === 0 ? (
+                                        <p className="text-muted">No available students. All students are already assigned to teams.</p>
+                                    ) : (
+                                        <div className="student-selection-grid">
+                                            {availableStudents.map((student) => (
+                                                <div
+                                                    key={student._id}
+                                                    className={`student-card ${teamData.selectedStudents.includes(student._id) ? 'selected' : ''}`}
+                                                    onClick={() => handleStudentToggle(student._id)}
+                                                >
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={teamData.selectedStudents.includes(student._id)}
+                                                        onChange={() => handleStudentToggle(student._id)}
+                                                    />
+                                                    <div className="student-info">
+                                                        <strong>{student.name}</strong>
+                                                        <span className="text-muted">{student.email}</span>
+                                                        <span className="text-muted">{student.department}</span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="form-actions">
+                                    <button
+                                        type="button"
+                                        className="btn btn-outline"
+                                        onClick={() => setShowCreateTeam(false)}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button type="submit" className="btn btn-primary">
+                                        Create Team
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    )}
+                </div>
+
+                {/* Pending BOM Requests */}
                 <div className="boms-section">
                     <h2>Pending BOM Requests</h2>
                     {pendingBOMs.length === 0 ? (
@@ -143,6 +313,7 @@ const FacultyDashboard = () => {
                     )}
                 </div>
 
+                {/* All BOM Requests */}
                 <div className="boms-section">
                     <h2>All BOM Requests</h2>
                     <div className="boms-grid">

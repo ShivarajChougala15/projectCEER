@@ -5,6 +5,7 @@ import {
     createTeam,
     updateTeam,
     deleteTeam,
+    getMyTeam,
 } from '../controllers/team.controllers.js';
 import { protect, authorize } from '../middleware/auth.middleware.js';
 
@@ -13,6 +14,8 @@ const router = express.Router();
 router.use(protect);
 
 router.route('/').get(getTeams).post(authorize('admin', 'faculty'), createTeam);
+
+router.route('/my-team').get(getMyTeam);
 
 router
     .route('/:id')

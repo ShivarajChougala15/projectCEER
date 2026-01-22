@@ -171,3 +171,30 @@ export const deleteTeam = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+
+// @desc    Get my team (for logged-in student)
+// @route   GET /api/teams/my-team
+// @access  Private (Student)
+export const getMyTeam = async (req, res) => {
+    try {
+        // Find team where the current user is a member
+        const team = await Team.findOne({ members: req.user._id })
+            .populate('members', 'name email department')
+            .populate('guide', 'name email department');
+
+        if (!team) {
+            return res.status(404).json({
+                success: false,
+                message: 'You are not assigned to any team yet'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            team,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};

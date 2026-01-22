@@ -182,3 +182,30 @@ export const resetPassword = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+
+// @desc    Get available students (not assigned to any team)
+// @route   GET /api/users/available-students
+// @access  Private (Faculty, Admin)
+export const getAvailableStudents = async (req, res) => {
+    try {
+        // Find all students who don't have a teamId
+        const availableStudents = await User.find({
+            role: 'student',
+            $or: [
+                { teamId: null },
+                { teamId: { $exists: false } }
+            ]
+        })
+            .select('_id name email department')
+            .sort('name');
+
+        res.status(200).json({
+            success: true,
+            count: availableStudents.length,
+            students: availableStudents,
+        });
+    } catch (error) {
+        console.error('Error in getAvailableStudents:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};

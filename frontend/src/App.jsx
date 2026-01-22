@@ -15,13 +15,14 @@ import AdminDashboard from './pages/AdminDashboard';
 const Layout = ({ children }) => {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
+  const isStudentRoute = location.pathname.startsWith('/student');
 
   return (
-    <div className="app">
-      {!isAdminRoute && <Navbar />}
+    <>
+      {!isAdminRoute && !isStudentRoute && <Navbar />}
       {children}
-      {!isAdminRoute && <Footer />}
-    </div>
+      {!isAdminRoute && !isStudentRoute && <Footer />}
+    </>
   );
 };
 

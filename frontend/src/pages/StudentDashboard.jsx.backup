@@ -266,6 +266,45 @@ const StudentDashboard = () => {
                     </div>
                 </div>
 
+                {/* Team Information */}
+                {team && (
+                    <div className="bg-white p-10 md:p-12 shadow-xl shadow-stone-200/40 rounded-sm border border-stone-100 mb-16 transition-all duration-400 hover:-translate-y-2 hover:shadow-2xl">
+                        <div className="flex flex-col md:flex-row justify-between items-start gap-12">
+                            <div className="md:w-1/2">
+                                <h3 className="font-serif text-4xl mb-6 text-stone-800">Team Information</h3>
+                                <p className="text-stone-400 text-[10px] mb-4 uppercase tracking-[0.2em] font-semibold">Project Scope</p>
+                                <h4 className="text-stone-800 font-medium text-sm mb-2">Problem Statement</h4>
+                                <p className="text-stone-500 text-sm leading-relaxed font-light">
+                                    {team.projectTitle}
+                                </p>
+                                {team.projectDescription && (
+                                    <p className="text-stone-400 text-xs leading-relaxed font-light mt-4">
+                                        {team.projectDescription}
+                                    </p>
+                                )}
+                            </div>
+
+                            <div className="md:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-8 border-t md:border-t-0 md:border-l border-stone-100 pt-8 md:pt-0 md:pl-12">
+                                <div>
+                                    <p className="text-stone-400 text-[10px] mb-4 uppercase tracking-[0.2em] font-semibold">Academic Guide</p>
+                                    <p className="font-serif text-xl text-stone-800 italic">{team.guide.name}</p>
+                                    <p className="text-stone-400 text-[10px] mt-1 font-light tracking-wider">{team.guide.email}</p>
+                                </div>
+                                <div>
+                                    <p className="text-stone-400 text-[10px] mb-4 uppercase tracking-[0.2em] font-semibold">Teammates</p>
+                                    <ul className="text-stone-700 space-y-2 text-sm font-medium">
+                                        {team.members.map((member) => (
+                                            <li key={member._id} className="flex items-center gap-2">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-stone-300"></span>
+                                                {member.name}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Material Database */}
                 <div id="materials" className="mb-16 bg-white p-8 md:p-12 shadow-sm rounded-sm border border-stone-100">
@@ -388,45 +427,72 @@ const StudentDashboard = () => {
                     </div>
                 </div>
 
-                {/* Team Information */}
-                {team && (
-                    <div className="bg-white p-10 md:p-12 shadow-xl shadow-stone-200/40 rounded-sm border border-stone-100 mb-16 transition-all duration-400 hover:-translate-y-2 hover:shadow-2xl">
-                        <div className="flex flex-col md:flex-row justify-between items-start gap-12">
-                            <div className="md:w-1/2">
-                                <h3 className="font-serif text-4xl mb-6 text-stone-800">Team Information</h3>
-                                <p className="text-stone-400 text-[10px] mb-4 uppercase tracking-[0.2em] font-semibold">Project Scope</p>
-                                <h4 className="text-stone-800 font-medium text-sm mb-2">Problem Statement</h4>
-                                <p className="text-stone-500 text-sm leading-relaxed font-light">
-                                    {team.projectTitle}
-                                </p>
-                                {team.projectDescription && (
-                                    <p className="text-stone-400 text-xs leading-relaxed font-light mt-4">
-                                        {team.projectDescription}
-                                    </p>
-                                )}
-                            </div>
-
-                            <div className="md:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-8 border-t md:border-t-0 md:border-l border-stone-100 pt-8 md:pt-0 md:pl-12">
-                                <div>
-                                    <p className="text-stone-400 text-[10px] mb-4 uppercase tracking-[0.2em] font-semibold">Academic Guide</p>
-                                    <p className="font-serif text-xl text-stone-800 italic">{team.guide.name}</p>
-                                    <p className="text-stone-400 text-[10px] mt-1 font-light tracking-wider">{team.guide.email}</p>
-                                </div>
-                                <div>
-                                    <p className="text-stone-400 text-[10px] mb-4 uppercase tracking-[0.2em] font-semibold">Teammates</p>
-                                    <ul className="text-stone-700 space-y-2 text-sm font-medium">
-                                        {team.members.map((member) => (
-                                            <li key={member._id} className="flex items-center gap-2">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-stone-300"></span>
-                                                {member.name}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            </div>
+                {/* BOM Requests Section */}
+                <div id="bom" className="mb-24">
+                    <div className="flex justify-between items-end mb-8">
+                        <div>
+                            <h2 className="font-serif text-4xl text-stone-800">My BOM Requests</h2>
+                            <p className="text-stone-400 text-[10px] mt-2 uppercase tracking-[0.2em] font-semibold">Project Materials</p>
                         </div>
+                        <button
+                            onClick={() => setShowCreateForm(true)}
+                            className="px-6 py-3 bg-[#8C8278] text-white text-[10px] uppercase tracking-[0.2em] font-bold rounded-sm hover:bg-[#7a7268] transition-all duration-300 flex items-center gap-2"
+                        >
+                            <FaPlus /> New Request
+                        </button>
                     </div>
-                )}
+
+                    {boms.length === 0 ? (
+                        <div className="bg-white p-12 shadow-sm rounded-sm border border-stone-100 text-center">
+                            <p className="text-stone-400 text-sm">No BOM requests yet. Create your first one!</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {boms.map((bom) => (
+                                <div
+                                    key={bom._id}
+                                    className="bg-white p-6 shadow-sm rounded-sm border border-stone-100 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                                >
+                                    <div className="flex justify-between items-start mb-4">
+                                        <h4 className="font-serif text-xl text-stone-800">BOM Request</h4>
+                                        {getStatusBadge(bom.status)}
+                                    </div>
+                                    <p className="text-stone-400 text-[10px] mb-4 uppercase tracking-widest">
+                                        {new Date(bom.createdAt).toLocaleDateString('en-US', {
+                                            month: 'short',
+                                            day: 'numeric',
+                                            year: 'numeric'
+                                        })}
+                                    </p>
+                                    <div className="space-y-2 mb-4">
+                                        <p className="text-stone-400 text-[10px] uppercase tracking-widest font-semibold">Materials</p>
+                                        <ul className="space-y-1">
+                                            {bom.materials.slice(0, 3).map((material, idx) => (
+                                                <li key={idx} className="text-stone-600 text-sm flex items-center gap-2">
+                                                    <span className="w-1 h-1 rounded-full bg-stone-300"></span>
+                                                    {material.name} - {material.quantity} {material.unit}
+                                                </li>
+                                            ))}
+                                            {bom.materials.length > 3 && (
+                                                <li className="text-stone-400 text-xs italic">
+                                                    +{bom.materials.length - 3} more items
+                                                </li>
+                                            )}
+                                        </ul>
+                                    </div>
+                                    {(bom.guideComments || bom.labinchargeComments) && (
+                                        <div className="mt-4 pt-4 border-t border-stone-100">
+                                            <p className="text-stone-400 text-[10px] uppercase tracking-widest font-semibold mb-2">Comments</p>
+                                            <p className="text-stone-600 text-xs font-light line-clamp-2">
+                                                {bom.guideComments || bom.labinchargeComments}
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </section>
 
             {/* Create BOM Modal */}
