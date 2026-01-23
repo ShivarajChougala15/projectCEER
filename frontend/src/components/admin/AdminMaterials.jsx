@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import Papa from 'papaparse';
+import ImageUploadZone from '../common/ImageUploadZone';
 
 const AdminMaterials = () => {
     const [materials, setMaterials] = useState([]);
@@ -266,9 +267,9 @@ const AdminMaterials = () => {
                                     <Package className="w-16 h-16 text-gray-400" />
                                 )}
                                 <span className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-medium ${material.category === 'metal' ? 'bg-slate-100 text-slate-700' :
-                                        material.category === 'plastic' ? 'bg-blue-100 text-blue-700' :
-                                            material.category === 'electronic' ? 'bg-purple-100 text-purple-700' :
-                                                'bg-gray-100 text-gray-700'
+                                    material.category === 'plastic' ? 'bg-blue-100 text-blue-700' :
+                                        material.category === 'electronic' ? 'bg-purple-100 text-purple-700' :
+                                            'bg-gray-100 text-gray-700'
                                     }`}>
                                     {material.category}
                                 </span>
@@ -329,25 +330,20 @@ const AdminMaterials = () => {
                         </div>
                         <form onSubmit={handleSubmit} className="p-6 space-y-6">
                             {/* Image Upload */}
-                            <div className="flex items-center gap-6">
-                                <div className="w-32 h-32 bg-gray-100 rounded-2xl flex items-center justify-center overflow-hidden">
-                                    {imagePreview ? (
-                                        <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                                    ) : (
-                                        <Image className="w-12 h-12 text-gray-400" />
-                                    )}
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Material Image</label>
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleImageChange}
-                                        className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
-                                    />
-                                    <p className="text-xs text-gray-400 mt-1">Uploaded to Cloudinary</p>
-                                </div>
-                            </div>
+                            <ImageUploadZone
+                                imagePreview={imagePreview}
+                                onImageSelect={(file) => {
+                                    setImageFile(file);
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => setImagePreview(reader.result);
+                                    reader.readAsDataURL(file);
+                                }}
+                                onImageRemove={() => {
+                                    setImagePreview(null);
+                                    setImageFile(null);
+                                }}
+                                label="Material Image"
+                            />
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>

@@ -7,7 +7,11 @@ import LandingPage from './pages/LandingPage';
 import RoleSelection from './pages/RoleSelection';
 import Login from './pages/Login';
 import StudentDashboard from './pages/StudentDashboard';
+import CreateBOM from './pages/CreateBOM';
 import FacultyDashboard from './pages/FacultyDashboard';
+import BOMManagement from './pages/BOMManagement';
+import CreateTeam from './pages/CreateTeam';
+import ViewTeams from './pages/ViewTeams';
 import LabInchargeDashboard from './pages/LabInchargeDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 
@@ -16,12 +20,13 @@ const Layout = ({ children }) => {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
   const isStudentRoute = location.pathname.startsWith('/student');
+  const isFacultyRoute = location.pathname.startsWith('/faculty');
 
   return (
     <>
-      {!isAdminRoute && !isStudentRoute && <Navbar />}
+      {!isAdminRoute && !isStudentRoute && !isFacultyRoute && <Navbar />}
       {children}
-      {!isAdminRoute && !isStudentRoute && <Footer />}
+      {!isAdminRoute && !isStudentRoute && !isFacultyRoute && <Footer />}
     </>
   );
 };
@@ -46,10 +51,46 @@ function App() {
             />
 
             <Route
+              path="/student/create-bom"
+              element={
+                <ProtectedRoute allowedRoles={['student']}>
+                  <CreateBOM />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
               path="/faculty/dashboard"
               element={
                 <ProtectedRoute allowedRoles={['faculty']}>
                   <FacultyDashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/faculty/bom-management"
+              element={
+                <ProtectedRoute allowedRoles={['faculty']}>
+                  <BOMManagement />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/faculty/create-team"
+              element={
+                <ProtectedRoute allowedRoles={['faculty']}>
+                  <CreateTeam />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/faculty/view-teams"
+              element={
+                <ProtectedRoute allowedRoles={['faculty']}>
+                  <ViewTeams />
                 </ProtectedRoute>
               }
             />

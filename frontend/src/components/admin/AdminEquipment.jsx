@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import Papa from 'papaparse';
+import ImageUploadZone from '../common/ImageUploadZone';
 
 const AdminEquipment = () => {
     const [equipment, setEquipment] = useState([]);
@@ -372,24 +373,20 @@ const AdminEquipment = () => {
                         </div>
                         <form onSubmit={handleSubmit} className="p-6 space-y-6">
                             {/* Image Upload */}
-                            <div className="flex items-center gap-6">
-                                <div className="w-32 h-32 bg-gray-100 rounded-2xl flex items-center justify-center overflow-hidden">
-                                    {imagePreview ? (
-                                        <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                                    ) : (
-                                        <Wrench className="w-12 h-12 text-gray-400" />
-                                    )}
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Equipment Image</label>
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleImageChange}
-                                        className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
-                                    />
-                                </div>
-                            </div>
+                            <ImageUploadZone
+                                imagePreview={imagePreview}
+                                onImageSelect={(file) => {
+                                    setImageFile(file);
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => setImagePreview(reader.result);
+                                    reader.readAsDataURL(file);
+                                }}
+                                onImageRemove={() => {
+                                    setImagePreview(null);
+                                    setImageFile(null);
+                                }}
+                                label="Equipment Image"
+                            />
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
@@ -426,90 +423,19 @@ const AdminEquipment = () => {
                                 />
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Model</label>
-                                    <input
-                                        type="text"
-                                        value={formData.model}
-                                        onChange={(e) => setFormData({ ...formData, model: e.target.value })}
-                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Manufacturer</label>
-                                    <input
-                                        type="text"
-                                        value={formData.manufacturer}
-                                        onChange={(e) => setFormData({ ...formData, manufacturer: e.target.value })}
-                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Serial Number</label>
-                                    <input
-                                        type="text"
-                                        value={formData.serialNumber}
-                                        onChange={(e) => setFormData({ ...formData, serialNumber: e.target.value })}
-                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                                    <input
-                                        type="text"
-                                        value={formData.location}
-                                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                                    <select
-                                        value={formData.status}
-                                        onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none"
-                                    >
-                                        {statuses.map((status) => (
-                                            <option key={status} value={status}>
-                                                {status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' ')}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Purchase Date</label>
-                                    <input
-                                        type="date"
-                                        value={formData.purchaseDate}
-                                        onChange={(e) => setFormData({ ...formData, purchaseDate: e.target.value })}
-                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Purchase Price</label>
-                                    <input
-                                        type="number"
-                                        value={formData.purchasePrice}
-                                        onChange={(e) => setFormData({ ...formData, purchasePrice: e.target.value })}
-                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Warranty Expiry</label>
-                                    <input
-                                        type="date"
-                                        value={formData.warrantyExpiry}
-                                        onChange={(e) => setFormData({ ...formData, warrantyExpiry: e.target.value })}
-                                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none"
-                                    />
-                                </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                                <select
+                                    value={formData.status}
+                                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none"
+                                >
+                                    {statuses.map((status) => (
+                                        <option key={status} value={status}>
+                                            {status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' ')}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
 
                             <button

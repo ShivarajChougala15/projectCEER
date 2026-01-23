@@ -1,17 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import { FaPlus, FaTimes, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 const StudentDashboard = () => {
     const { user, logout } = useAuth();
+    const navigate = useNavigate();
     const [boms, setBoms] = useState([]);
-    const [inventory, setInventory] = useState([]);
+    const [materialsDatabase, setMaterialsDatabase] = useState([]);
     const [equipment, setEquipment] = useState([]);
     const [team, setTeam] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [showCreateForm, setShowCreateForm] = useState(false);
-    const [materials, setMaterials] = useState([{ name: '', quantity: '', specifications: '', unit: 'pcs' }]);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
@@ -31,9 +31,9 @@ const StudentDashboard = () => {
 
     const fetchAllData = async () => {
         try {
-            const [bomsRes, inventoryRes, equipmentRes, teamRes] = await Promise.allSettled([
+            const [bomsRes, materialsRes, equipmentRes, teamRes] = await Promise.allSettled([
                 api.get('/bom'),
-                api.get('/inventory'),
+                api.get('/materials'),
                 api.get('/equipment'),
                 api.get('/teams/my-team'),
             ]);
@@ -42,16 +42,14 @@ const StudentDashboard = () => {
                 setBoms(bomsRes.value.data.boms);
             }
 
-            if (inventoryRes.status === 'fulfilled') {
-                // Show ALL inventory items, not just those with quantity > 0
-                setInventory(inventoryRes.value.data.inventory);
+            if (materialsRes.status === 'fulfilled') {
+                // Show ALL materials from admin's material database
+                setMaterialsDatabase(materialsRes.value.data.materials || materialsRes.value.data);
             }
 
             if (equipmentRes.status === 'fulfilled') {
-                const availableEquipment = equipmentRes.value.data.equipment.filter(
-                    item => item.status === 'available'
-                );
-                setEquipment(availableEquipment);
+                // Show ALL equipment from admin's equipment section
+                setEquipment(equipmentRes.value.data.equipment || equipmentRes.value.data);
             }
 
             if (teamRes.status === 'fulfilled') {
@@ -70,36 +68,6 @@ const StudentDashboard = () => {
             setBoms(data.boms);
         } catch (err) {
             setError('Failed to fetch BOMs');
-        }
-    };
-
-    const addMaterialRow = () => {
-        setMaterials([...materials, { name: '', quantity: '', specifications: '', unit: 'pcs' }]);
-    };
-
-    const removeMaterialRow = (index) => {
-        setMaterials(materials.filter((_, i) => i !== index));
-    };
-
-    const handleMaterialChange = (index, field, value) => {
-        const newMaterials = [...materials];
-        newMaterials[index][field] = value;
-        setMaterials(newMaterials);
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-        setSuccess('');
-
-        try {
-            await api.post('/bom', { materials });
-            setSuccess('BOM created successfully! Your guide will be notified.');
-            setShowCreateForm(false);
-            setMaterials([{ name: '', quantity: '', specifications: '', unit: 'pcs' }]);
-            fetchBOMs();
-        } catch (err) {
-            setError(err.response?.data?.message || 'Failed to create BOM');
         }
     };
 
@@ -122,8 +90,8 @@ const StudentDashboard = () => {
         }
     };
 
-    const filteredInventory = inventory.filter(item =>
-        item.materialName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    const filteredMaterials = materialsDatabase.filter(item =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (item.category && item.category.toLowerCase().includes(searchQuery.toLowerCase()))
     );
 
@@ -206,17 +174,17 @@ const StudentDashboard = () => {
                         Managing material procurement and project development for innovative hardware solutions.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                        <button
-                            onClick={() => setShowCreateForm(true)}
-                            className="px-10 py-4 bg-white text-stone-800 text-[10px] uppercase tracking-[0.2em] font-bold rounded-sm hover:bg-stone-100 transition-all duration-300"
-                        >
-                            Create New BOM
-                        </button>
                         <a
                             href="#materials"
-                            className="px-10 py-4 bg-transparent border border-white/40 text-white text-[10px] uppercase tracking-[0.2em] font-bold rounded-sm hover:bg-white/10 transition-all duration-300"
+                            className="px-10 py-4 bg-white text-stone-800 text-[10px] uppercase tracking-[0.2em] font-bold rounded-sm hover:bg-stone-100 transition-all duration-300"
                         >
                             View Materials
+                        </a>
+                        <a
+                            href="#equipment"
+                            className="px-10 py-4 bg-transparent border border-white/40 text-white text-[10px] uppercase tracking-[0.2em] font-bold rounded-sm hover:bg-white/10 transition-all duration-300"
+                        >
+                            View Equipment
                         </a>
                     </div>
                 </div>
@@ -238,20 +206,25 @@ const StudentDashboard = () => {
 
                 {/* Metrics Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-                    <div className="bg-white p-10 shadow-xl shadow-stone-200/40 rounded-sm border border-stone-100 flex flex-col items-start text-left transition-all duration-400 hover:-translate-y-2 hover:shadow-2xl hover:border-[#8C8278] cursor-pointer">
+                    <div className="bg-white p-10 shadow-xl shadow-stone-200/40 rounded-sm border border-stone-100 flex flex-col items-start text-left transition-all duration-400 hover:-translate-y-2 hover:shadow-2xl hover:border-[#8C8278]">
                         <h3 className="font-serif text-3xl mb-3 text-stone-800">BOM Requests</h3>
                         <p className="text-stone-400 text-[10px] mb-6 uppercase tracking-[0.2em] font-semibold">Bill of Materials</p>
                         <div className="text-4xl font-light text-stone-700 mb-6">
                             {boms.length} <span className="text-base opacity-40 italic">Total</span>
                         </div>
-                        <div className="mt-auto text-[10px] uppercase tracking-widest font-bold text-stone-400">View Requests →</div>
+                        <button
+                            onClick={() => navigate('/student/create-bom')}
+                            className="mt-auto w-full py-3 bg-[#8C8278] text-white text-[10px] uppercase tracking-[0.2em] font-bold rounded-sm hover:bg-[#7a7268] transition-all duration-300"
+                        >
+                            Create New BOM
+                        </button>
                     </div>
 
                     <div className="bg-white p-10 shadow-xl shadow-stone-200/40 rounded-sm border border-stone-100 flex flex-col items-start text-left transition-all duration-400 hover:-translate-y-2 hover:shadow-2xl hover:border-[#8C8278] cursor-pointer">
                         <h3 className="font-serif text-3xl mb-3 text-stone-800">Materials</h3>
-                        <p className="text-stone-400 text-[10px] mb-6 uppercase tracking-[0.2em] font-semibold">Available Inventory</p>
+                        <p className="text-stone-400 text-[10px] mb-6 uppercase tracking-[0.2em] font-semibold">Material Database</p>
                         <div className="text-4xl font-light text-stone-700 mb-6">
-                            {inventory.length} <span className="text-base opacity-40 uppercase tracking-tighter">Items</span>
+                            {materialsDatabase.length} <span className="text-base opacity-40 uppercase tracking-tighter">Items</span>
                         </div>
                         <div className="mt-auto text-[10px] uppercase tracking-widest font-bold text-stone-400">Browse Database →</div>
                     </div>
@@ -273,7 +246,7 @@ const StudentDashboard = () => {
                         <div>
                             <h2 className="font-serif text-4xl text-stone-800">Material Database</h2>
                             <p className="text-stone-400 text-[10px] mt-2 uppercase tracking-[0.2em] font-semibold">
-                                Explore {inventory.length} Available Resources
+                                Explore {materialsDatabase.length} Available Resources
                             </p>
                         </div>
                         <div className="relative w-full md:w-96">
@@ -289,24 +262,32 @@ const StudentDashboard = () => {
                     </div>
 
                     <div className="max-h-[580px] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-[#8C8278] scrollbar-track-stone-100">
-                        {filteredInventory.length === 0 ? (
+                        {filteredMaterials.length === 0 ? (
                             <div className="text-center py-12 text-stone-400">
                                 <p className="text-sm">No materials found</p>
                             </div>
                         ) : (
-                            filteredInventory.map((item) => (
+                            filteredMaterials.map((item) => (
                                 <div
                                     key={item._id}
                                     onClick={() => openModal(item, 'material')}
                                     className="py-6 flex items-center gap-8 px-4 border-b border-stone-100 hover:bg-stone-50 transition-colors cursor-pointer"
                                 >
                                     <div className="w-32 h-24 flex-shrink-0 overflow-hidden rounded-sm bg-stone-100 flex items-center justify-center">
-                                        <span className="text-4xl">📦</span>
+                                        {item.imageUrl ? (
+                                            <img
+                                                src={item.imageUrl}
+                                                className="w-full h-full object-cover"
+                                                alt={item.name}
+                                            />
+                                        ) : (
+                                            <span className="text-4xl">📦</span>
+                                        )}
                                     </div>
                                     <div className="flex-grow">
                                         <div className="flex items-center justify-between mb-1">
                                             <h4 className="font-serif text-2xl text-stone-800 hover:text-stone-500 transition-colors">
-                                                {item.materialName}
+                                                {item.name}
                                             </h4>
                                             {item.category && (
                                                 <span className="text-[9px] uppercase tracking-widest px-3 py-1 border border-stone-200 text-stone-400 rounded-full">
@@ -315,12 +296,12 @@ const StudentDashboard = () => {
                                             )}
                                         </div>
                                         <p className="text-stone-500 text-xs font-light max-w-xl line-clamp-1">
-                                            {item.specifications || 'Standard material for lab projects'}
+                                            {item.description || 'Standard material for lab projects'}
                                         </p>
                                     </div>
                                     <div className="text-right flex-shrink-0 hidden md:block">
-                                        <span className="block text-[10px] uppercase tracking-widest text-stone-400 mb-1">Available</span>
-                                        <span className="text-sm font-medium text-stone-800">{item.quantity} {item.unit}</span>
+                                        <span className="block text-[10px] uppercase tracking-widest text-stone-400 mb-1">Stock</span>
+                                        <span className="text-sm font-medium text-stone-800">{item.stockQuantity} {item.unit}</span>
                                     </div>
                                 </div>
                             ))
@@ -429,127 +410,6 @@ const StudentDashboard = () => {
                 )}
             </section>
 
-            {/* Create BOM Modal */}
-            {showCreateForm && (
-                <div
-                    className="fixed inset-0 z-50 bg-stone-900/80 backdrop-blur-sm flex items-center justify-center p-4"
-                    onClick={() => setShowCreateForm(false)}
-                >
-                    <div
-                        className="bg-white max-w-3xl w-full rounded-sm shadow-2xl max-h-[90vh] overflow-y-auto"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <div className="p-8">
-                            <div className="flex justify-between items-start mb-6">
-                                <div>
-                                    <h3 className="font-serif text-3xl text-stone-800">Create BOM Request</h3>
-                                    <p className="text-stone-400 text-[10px] mt-2 uppercase tracking-[0.2em] font-semibold">
-                                        Bill of Materials
-                                    </p>
-                                </div>
-                                <button
-                                    onClick={() => setShowCreateForm(false)}
-                                    className="text-stone-400 hover:text-stone-800 text-xs tracking-widest uppercase"
-                                >
-                                    Close ✕
-                                </button>
-                            </div>
-
-                            <form onSubmit={handleSubmit} className="space-y-6">
-                                {materials.map((material, index) => (
-                                    <div key={index} className="p-6 bg-stone-50 rounded-sm border border-stone-200">
-                                        <div className="flex justify-between items-center mb-4">
-                                            <p className="text-stone-600 text-sm font-medium">Material {index + 1}</p>
-                                            {materials.length > 1 && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeMaterialRow(index)}
-                                                    className="text-red-500 hover:text-red-700 text-xs"
-                                                >
-                                                    <FaTimes />
-                                                </button>
-                                            )}
-                                        </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="block text-[10px] uppercase tracking-widest text-stone-400 mb-2">
-                                                    Material Name
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    value={material.name}
-                                                    onChange={(e) => handleMaterialChange(index, 'name', e.target.value)}
-                                                    className="w-full px-4 py-3 bg-white border border-stone-200 text-sm focus:outline-none focus:border-stone-400 transition-all rounded-sm"
-                                                    required
-                                                />
-                                            </div>
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div>
-                                                    <label className="block text-[10px] uppercase tracking-widest text-stone-400 mb-2">
-                                                        Quantity
-                                                    </label>
-                                                    <input
-                                                        type="number"
-                                                        value={material.quantity}
-                                                        onChange={(e) => handleMaterialChange(index, 'quantity', e.target.value)}
-                                                        className="w-full px-4 py-3 bg-white border border-stone-200 text-sm focus:outline-none focus:border-stone-400 transition-all rounded-sm"
-                                                        required
-                                                        min="1"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-[10px] uppercase tracking-widest text-stone-400 mb-2">
-                                                        Unit
-                                                    </label>
-                                                    <select
-                                                        value={material.unit}
-                                                        onChange={(e) => handleMaterialChange(index, 'unit', e.target.value)}
-                                                        className="w-full px-4 py-3 bg-white border border-stone-200 text-sm focus:outline-none focus:border-stone-400 transition-all rounded-sm"
-                                                    >
-                                                        <option value="pcs">Pieces</option>
-                                                        <option value="kg">Kilograms</option>
-                                                        <option value="m">Meters</option>
-                                                        <option value="l">Liters</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div className="md:col-span-2">
-                                                <label className="block text-[10px] uppercase tracking-widest text-stone-400 mb-2">
-                                                    Specifications
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    value={material.specifications}
-                                                    onChange={(e) => handleMaterialChange(index, 'specifications', e.target.value)}
-                                                    className="w-full px-4 py-3 bg-white border border-stone-200 text-sm focus:outline-none focus:border-stone-400 transition-all rounded-sm"
-                                                    placeholder="e.g., 5V, 2A"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-
-                                <div className="flex gap-4">
-                                    <button
-                                        type="button"
-                                        onClick={addMaterialRow}
-                                        className="px-6 py-3 bg-stone-100 text-stone-700 text-[10px] uppercase tracking-[0.2em] font-bold rounded-sm hover:bg-stone-200 transition-all duration-300"
-                                    >
-                                        Add Material
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        className="flex-1 px-6 py-3 bg-[#8C8278] text-white text-[10px] uppercase tracking-[0.2em] font-bold rounded-sm hover:bg-[#7a7268] transition-all duration-300"
-                                    >
-                                        Submit BOM Request
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            )}
-
             {/* Detail Modal */}
             {showModal && modalData && (
                 <div
@@ -585,16 +445,16 @@ const StudentDashboard = () => {
                                 {modalData.name || modalData.materialName}
                             </h3>
                             <div className="space-y-4 text-sm text-stone-600 font-light leading-relaxed">
-                                <p>{modalData.description || modalData.specifications || 'Standard lab resource'}</p>
+                                <p>{modalData.description || 'Standard lab resource'}</p>
                                 <div className="pt-4 border-t border-stone-100 grid grid-cols-2 gap-4">
                                     {modalData.type === 'material' ? (
                                         <>
                                             <div>
                                                 <span className="block text-[10px] uppercase tracking-widest text-stone-400 mb-1">
-                                                    Available
+                                                    Stock Quantity
                                                 </span>
                                                 <span className="font-medium text-stone-800">
-                                                    {modalData.quantity} {modalData.unit}
+                                                    {modalData.stockQuantity} {modalData.unit}
                                                 </span>
                                             </div>
                                             <div>
